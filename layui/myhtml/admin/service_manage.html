@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>DockerPaas</title>
+
+    <!-- 公共样式 开始 -->
+    <link rel="stylesheet" type="text/css" href="../../css/base.css">
+    <link rel="stylesheet" type="text/css" href="../../css/iconfont.css">
+    <script type="text/javascript" src="../../framework/jquery-1.11.3.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../layui/css/layui.css">
+    <script type="text/javascript" src="../../layui/layui.js"></script>
+    <!-- 滚动条插件 -->
+    <link rel="stylesheet" type="text/css" href="../../css/jquery.mCustomScrollbar.css">
+    <script src="../../framework/jquery-ui-1.10.4.min.js"></script>
+    <script src="../../framework/jquery.mousewheel.min.js"></script>
+    <script src="../../node_modules/axios/dist/axios.min.js"></script>
+    <script src="../../framework/jquery.mCustomScrollbar.min.js"></script>
+    <script src="../../framework/cframe.js"></script><!-- 仅供所有子页面使用 -->
+
+    <script src="../Ip.js"></script>
+    <!-- 公共样式 结束 -->
+
+    <!-- <table class="layui-hide" id="demo" lay-filter="demo"></table>
+    <script type="text/html" id="barDemo">
+        <a class="layui-btn layui-btn-xs" lay-event="run">运行</a>
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="stop">停止</a>
+        <a class="layui-btn layui-btn-xs" lay-event="rename">重命名</a>
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    </script> -->
+
+</head>
+
+<body>
+<div class="cBody">
+    <div class="console">
+
+        <form class="layui-form" action="">
+            <div class="layui-form-item">
+                <div class="layui-input-inline">
+                    <input type="text" name="name"  placeholder="输入" autocomplete="off" class="layui-input">
+                </div>
+                <button class="layui-btn" lay-submit lay-filter="search_by_user">按用户名检索</button>
+                <button class="layui-btn" lay-submit lay-filter="search_by_service">按服务名检索</button>
+                <button class="layui-btn" lay-submit lay-filter="search_by_image">按镜像名检索</button>
+                <button class="layui-btn" lay-submit lay-filter="search_all">显示所有服务</button>
+                <!--                <button class="layui-btn" onclick="add_container()">新增</button>-->
+            </div>
+        </form>
+
+            <table class="layui-hide" id="demo" lay-filter="demo"></table>
+
+            <script type="text/html" id="barDemo">
+                <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+                <a class="layui-btn layui-btn-xs" lay-event="go_in">进入</a>
+            </script>
+
+    </div>
+
+    <script type="text/javascript">
+        var admin_name = document.cookie.split(" ")[0];
+
+        page_init();
+        table_change();
+
+        layui.use('form', function() {
+            var form = layui.form;
+            //监听提交
+            form.on('submit(search_by_user)', function(data) {
+                // layer.msg(JSON.stringify(data.field));
+                var user_name = data.field.name;
+                // search_user(user_name);
+                request_view_by_user_name(user_name);
+                return false;
+            });
+            form.on('submit(search_by_service)', function(data) {
+                var service_name = data.field.name;
+                setTimeout(request_view_by_service_name(service_name),1000);
+                return false;
+            });
+
+            form.on('submit(search_by_image)', function(data) {
+                var image_name = data.field.name;
+                setTimeout(request_view_by_image_name(image_name),1000);
+                return false;
+            });
+            form.on('submit(search_all)', function(data) {
+                page_init("all");
+                return false;
+            });
+        });
+        
+        function request_view_by_user_name(user_name) {
+            // console.log("xxxx："+admin_name + "  " + user_name)
+            var URL = Ip +'request_view_by_user_name';
+            axios.get(URL,{
+                params:{
+                    admin_name:admin_name,
+                    user_name:user_name
+                }
+            })
+                .then(function (response){
+                    data = response.data;
+                    console.log(data);
+                    table_init(data);
+                })
+                .catch(function (error){
+                    alert("错误");
+                    console.log(error);
+                });
+        }
+        function request_view_by_service_name(service_name) {
+            var URL = Ip +'request_view_by_service_name';
+            axios.get(URL,{
+                params:{
+                    admin_name:admin_name,
+                    service_name:service_name
+                }
+            })
+                .then(function (response){;
+                    data = response.data;
+                    console.log(data);
+                    var data1 = new Array();
+                    data1[0] = data;
+                    table_init(data1);
+                })
+                .catch(function (error){
+                    layer.msg("错误");
+                    console.log(error);
+                });
+        }
+        function request_view_by_image_name(image_name) {
+            var URL = Ip +'request_view_by_image_name';
+            axios.get(URL,{
+                params:{
+                    admin_name:admin_name,
+                    image_name:image_name
+                }
+            })
+                .then(function (response){;
+                    data = response.data;
+                    console.log(data);
+                    table_init(data);
+                })
+                .catch(function (error){
+                    layer.msg("错误");
+                    console.log(error);
+                });
+        }
+        
+        function page_init(){
+            var URL = Ip +'request_service_view_all';
+            axios.get(URL,{
+                params:{
+                    admin_name:admin_name
+                }
+            })
+                .then(function (response){
+                    console.log("111111");
+                    data = response.data;
+                    console.log(data);
+                    table_init(data);
+                })
+                .catch(function (error){
+                    layer.msg("错误");
+                    console.log(error);
+                });
+        }
+
+        function table_init(data){
+            layui.use('table', function(){
+                console.log(data);
+                var table = layui.table;
+                //展示已知数据
+                table.render({
+                    elem: '#demo'
+                    ,cols: [[ //标题栏
+                        {field: 'user_name', title: '用户名',fixed:true,  sort: true},
+                        {field: 'image_name', title: '镜像名',fixed:true},
+                        {field: 'service_name',title:'服务名',fixed:true},
+                        {field: 'copy_num',title:'容器数量',fixed:true},
+                        {field: 'cpu',title:'cpu个数',fixed:true},
+                        {field: 'ram',title:'内存大小',fixed:true},
+                        {fixed: 'right',title:'操作',toolbar:'#barDemo',fixed:true}
+                    ]]
+                    ,data: data
+                    ,even: true
+                    ,page: true
+                });
+            });
+        }
+
+        function table_change() {
+            layui.use('table', function () {
+                var table = layui.table;
+                // obj 是一行数据
+                table.on('tool(demo)', function (obj) {
+                    var data = obj.data;        //data是  一行数据
+                    var service_name = data.service_name;
+                    if (obj.event === 'del'){
+                        layer.confirm('真的删除服务吗？', function (index) {
+                            // 以刷新页面为删除方式 不用一下两行
+                            //obj.del();
+                            post_del_service(service_name,obj);
+                            layer.close(index);
+                        });
+                    }
+                    if (obj.event === 'go_in'){
+                        var url = "../user/my_service_detail.html?service_name="+service_name;
+                        console.log(url);
+                        window.location.href = url;
+                    }
+                });
+
+            });
+        }
+
+        function  post_del_service(service_name,obj){
+            //alert("container_name:"+container_name);
+            var URL = Ip+"request_service_delete";
+            axios.get(URL,{
+                params:{
+                    user_name:admin_name,
+                    service_name:service_name
+                }
+            })
+                .then(function (response){
+                    // 提示是否删除成功
+                    console.log(response.data);
+                    page_init();
+                })
+                .catch(function (error){
+                    alert("错误");
+                    console.log(error);
+                });
+        }
+    </script>
+
+    <!--    &lt;!&ndash; layUI 分页模块 &ndash;&gt;-->
+    <!--    <div id="pages"></div>-->
+    <!--    <script>-->
+    <!--        layui.use(['laypage', 'layer'], function() {-->
+    <!--            var laypage = layui.laypage,-->
+    <!--                layer = layui.layer;-->
+
+    <!--            //总页数大于页码总数-->
+    <!--            laypage.render({-->
+    <!--                elem: 'pages'-->
+    <!--                ,count: 100-->
+    <!--                ,layout: ['count', 'prev', 'page', 'next', 'limit', 'skip']-->
+    <!--                ,jump: function(obj){-->
+    <!--                    console.log(obj)-->
+    <!--                }-->
+    <!--            });-->
+    <!--        });-->
+    <!--    </script>-->
+
+</div>
+</body>
+
+</html>

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>DockerPaas</title>
+
+    <!-- 公共样式 开始 -->
+    <link rel="stylesheet" type="text/css" href="../../css/base.css">
+    <link rel="stylesheet" type="text/css" href="../../css/iconfont.css">
+    <script type="text/javascript" src="../../framework/jquery-1.11.3.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../layui/css/layui.css">
+    <script type="text/javascript" src="../../layui/layui.js"></script>
+    <!-- 滚动条插件 -->
+    <link rel="stylesheet" type="text/css" href="../../css/jquery.mCustomScrollbar.css">
+    <script src="../../framework/jquery-ui-1.10.4.min.js"></script>
+    <script src="../../framework/jquery.mousewheel.min.js"></script>
+    <script src="../../framework/jquery.mCustomScrollbar.min.js"></script>
+    <script src="../../framework/cframe.js"></script><!-- 仅供所有子页面使用 -->
+    <!-- 公共样式 结束 -->
+    <script src="../../node_modules/axios/dist/axios.min.js"></script>
+    <script src="../Ip.js"></script>
+
+</head>
+
+<body>
+<!--<body>-->
+<!--<video autoplay="autoplay" loop="loop">-->
+<!--    <source  src="../../images/v.mp4" type="video/mp4" >;-->
+<!--</video>-->
+
+<div class="cBody">
+
+
+<!--    <button class="layui-btn" onclick = "test()">上传</button>-->
+<!--    <script>-->
+<!--        function test() {-->
+<!--            layer.msg('亲!内容不能为空.layui-icon-refresh',{time:4000});-->
+<!--        }-->
+<!--    </script>-->
+
+    <div class="console" style="opacity:0.85;">
+        <form class="layui-form" action="">
+            <div class="layui-form-item">
+                <div class="layui-input-inline">
+                    <input type="text" name="image_name"  placeholder="输入镜像名" autocomplete="off" class="layui-input">
+                </div>
+                <button class="layui-btn" lay-submit lay-filter="up_down">上传</button>
+
+            </div>
+        </form>
+
+        <table class="layui-hide" id="demo" lay-filter="demo"></table>
+        <script type="text/html" id="barDemo">
+            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+
+        </script>
+    </div>
+
+    <script type="text/javascript">
+        var admin_name = document.cookie.split(" ")[0];
+        var power = document.cookie.split(" ")[1];
+        // console.log("aaaaaaaaaa")
+        page_init();
+        table_change();
+
+        layui.use('form', function() {
+            var form = layui.form;
+
+            //监听提交
+            form.on('submit(up_down)', function(data){
+                // layer.msg(JSON.stringify(data.field));
+                var image_name = data.field.image_name;
+                // 上传镜像
+                upload_image(image_name);
+
+                page_init();
+                return false;
+            });
+
+        });
+
+        function page_init(){
+            URL = Ip+"request_image_view";
+            axios.get(URL,{
+                params:{
+                    // 同用户查看镜像
+                    user_name:admin_name
+                }
+            })
+                .then(function (response){
+                    data = response.data;
+                    console.log(data);
+                    var i = 0 ;
+                    var data1 = new Array();
+                    for( i = 0 ; i < data.length; i++){
+                        var res = {};
+                        res['image_name'] = data[i]
+                        data1[i] = res;
+                    }
+                    console.log(data1);
+                    table_init(data1);
+                })
+                .catch(function (error){
+                    layer.msg("waiting");
+                    console.log(error);
+                });
+        }
+
+
+
+        function table_init(data){
+            layui.use('table', function(){
+                var table = layui.table;
+                //展示已知数据
+                table.render({
+                    elem: '#demo'
+                    ,cols: [[ //标题栏
+                        {field: "image_name", title: '镜像名',sort: true},
+                        // {field:'verify_code',title:'验证码'},
+                        // {field:'status',title:'状态'},
+                        // {field:'time',title:'时间'},
+                        {fixed:'right',title:'操作',toolbar:'#barDemo'}
+                    ]]
+                    ,data: data
+                    // ,even: true
+                })
+            });
+        }
+
+        function table_change() {
+            layui.use('table', function () {
+                var table = layui.table;
+                // obj 是一行数据
+                table.on('tool(demo)', function (obj) {
+                    var data = obj.data;        //data是  一行数据
+                    // console.log(data);
+                    var image_name = data.image_name;
+                    if (obj.event === 'del') {
+                        layer.confirm('真的删除镜像么', function (index) {
+                            // 以刷新页面为删除方式 不用一下两行
+                            // obj.del();
+                            post_del_image(image_name);
+                            layer.close(index);
+                            page_init();
+                        });
+                    }
+                })
+            })
+        }
+
+        function upload_image(image_name){
+            console.log("xx:"+image_name + admin_name);
+
+            URL = Ip+"request_image_upload";
+            axios.get(URL,{
+                params:{
+                    admin_name:admin_name,
+                    image_name:image_name
+                }
+            })
+                .then(function (response){
+                    // 提示是否删除成功
+                    var data = response.data;
+                    if(data == "success"){
+                        layer.msg('请求提交成功',{time:2000});
+                        page_init();
+                        // obj.del();
+                        // layer.msg("上传成功",{shade:[3,'#000']});
+                        // layer.msg('亲!内容不能为空',{shade:[0.3,'#000']});
+                    }else{
+                        layer.open({
+                            content: "上传失败",
+                            yes:function(index,layero){
+                                layer.close(index); //关闭弹出框
+                            }
+                        })
+                    }
+
+                })
+                .catch(function (error){
+                    layer.msg(error);
+                    console.log(error);
+                });
+        }
+
+
+
+
+        function post_del_image(image_name){
+            URL = Ip+"request_image_delete";
+            axios.get(URL,{
+                params:{
+                    admin_name:admin_name,
+                    image_name:image_name
+                }
+            })
+                .then(function (response){
+                    // 提示是否删除成功
+                    var data = response.data;
+                    if(data == "success"){
+                        // obj.del();
+                        layer.open({
+                            content: "删除成功",
+                            yes:function(index,layero){
+                                layer.close(index); //关闭弹出框
+                                page_init();
+                            }
+                        })
+                    }
+                    if(data == "image_in_use"){
+                        layer.open({
+                            content: "镜像正在使用，删除失败",
+                            yes:function(index,layero){
+                                layer.close(index); //关闭弹出框
+                            }
+                        })
+                    }
+
+                })
+                .catch(function (error){
+                    layer.msg(error)
+                    console.log(error);
+                });
+        }
+    </script>
+
+</div>
+</body>
+
+</html>

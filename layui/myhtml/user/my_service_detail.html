@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>DockerPaas</title>
+
+    <!-- 公共样式 开始 -->
+    <link rel="stylesheet" type="text/css" href="../../css/base.css">
+    <link rel="stylesheet" type="text/css" href="../../css/iconfont.css">
+    <script type="text/javascript" src="../../framework/jquery-1.11.3.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../layui/css/layui.css">
+    <script type="text/javascript" src="../../layui/layui.js"></script>
+    <!-- 滚动条插件 -->
+    <link rel="stylesheet" type="text/css" href="../../css/jquery.mCustomScrollbar.css">
+    <script src="../../framework/jquery-ui-1.10.4.min.js"></script>
+    <script src="../../framework/jquery.mousewheel.min.js"></script>
+    <script src="../../node_modules/axios/dist/axios.min.js"></script>
+    <script src="../../framework/jquery.mCustomScrollbar.min.js"></script>
+    <script src="../Ip.js"></script>
+    <script src="../../framework/cframe.js"></script><!-- 仅供所有子页面使用 -->
+    <!-- 公共样式 结束 -->
+    <style>
+        .layui-form-label{
+            width: 100px;
+        }
+        .layui-input-block{
+            margin-left: 130px;
+        }
+        .layui-form{
+            margin-right: 30%;
+        }
+        .top{
+            margin-top: 20px;
+        }
+        .shadow{
+            box-shadow: 5px 5px 5px #888888;
+        }
+    </style>
+
+</head>
+<body>
+<ul class="flow-default" id="LAY_demo1"></ul>
+<div style="display: flex;" >
+    <div style="float: left;width: 60%;background-color: white; margin-top: 10px;margin-left: 10px;" id="menu">
+        <div class="layui-card shadow">
+            <div class="layui-card-header" style="background-color: #BCEE68;">
+                <h style="float: left;">卡片</h>
+                <i class="icon iconfont icon-shezhi" style="float: right;margin-right: 5px"></i>
+            </div>
+            <div class="layui-card-body">
+                <h1 id="above"></h1>
+            </div>
+            <!-- <hr class="layui-bg-gray">
+            <div class="layui-card-body">
+              卡片式面板面板通常用于非白色背景色的主体内<br>
+              从而映衬出边框投影
+            </div> -->
+            <table   id="table" border-bottom-color: red lay-filter="table" style="width: 100%;">
+                <thead>
+                <tr style="border-bottom: 1px solid gray; height: 40px;">
+                    <th>
+                        <h1 style="margin-left: 20px;">容器id</h1>
+                    </th>
+                    <th>宿主机ip</th>
+                    <th>宿主机端口</th>
+                    <th>
+                        <h1>容器端口</h1>
+                    </th>
+                    <th>点击进入</th>
+                </tr>
+                </thead>
+            </table>
+            <script type="text/html" id="barDemo">
+                <a class="layui-btn layui-btn-xs" lay-event="enter">进入</a>
+            </script>
+            <div class="layui-card-body" style="height:180px;"id="detail">
+                <h1 style="font-size: 20px;">配置需求Spec</h1>
+                <h1 style="margin-top: 10px;margin-left: 60px;" id="img_name"></h1>
+                <h1 style="margin-top: 5px;margin-left: 60px;" id="copy_num"></h1>
+                <h1 style="margin-top: 5px;margin-left: 13px;" id="cr"></h1>
+                <h1 style="margin-top: 5px;margin-left: 45px;" id="mount_dir"></h1>
+                <h1 style="margin-top: 5px;margin-left: 45px;" id="work_dir"></h1>
+            </div>
+        </div>
+    </div>
+    <div style="display:inline-block;width: 35%;background-color: white;margin-top:10px;margin-left: 20px;">
+        <!-- <div class="layui-card shadow">
+            <div class="layui-card-header" style="background-color: #C7C7C7;height: 50px; font-size: 20px;color:white;line-height: 50px;">升级应用</div>
+            <div class="layui-card-body" style="height: 110px;">
+              卡片式面板面板通常用于非白色背景色的主体内<br>
+              从而映衬出边框投影
+            </div>
+            <hr class="layui-bg-gray">
+            <div  style="height: 40px;">
+              卡片式面板面板通常用于非白色背景色的主体内<br>
+              从而映衬出边框投影
+            </div>
+        </div> -->
+        <div class="layui-card shadow">
+            <div class="layui-card-header" style="background-color: #C7C7C7;height: 50px; font-size: 20px;color:white;line-height: 50px;">运行实例调度</div>
+            <div class="layui-card-body" style="height: 110px;">
+                对Proc进行实时的动态运行实例数量调整调度,输入需要的实例数量,点击确认调度即可<br>
+                <h1 id="instancesNum"></h1>
+                <select id="testSelect" style="position: absolute;bottom: 0; width: 300px;">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                </select>
+            </div>
+            <hr class="layui-bg-gray">
+            <div  style="height: 40px;">
+                <button id="dispatch1" style="float: right;margin-right: 10px;background-color: white;">
+                    <h1  style="float: right;color: #CD2626;">确认调度</h1>
+                </button>
+            </div>
+        </div>
+        <div class="layui-card shadow">
+            <div class="layui-card-header" style="background-color: #C7C7C7;height: 50px; font-size: 20px;color:white;line-height: 50px;">运行资源调度</div>
+            <div class="layui-card-body" style="height: 150px;">
+                对Proc进行实时的动态运行CPU、内存等资源调正调度、输入需要的运行资源,点击确认调度即可。<br>
+                CPU参数最大为2,内存参数最大为1GB。<br>
+                <div style="display: flex;margin-top: 10px;">
+                    <h1>cpu</h1>
+                    <select id="cpuSelect" style="width: 200px;margin-left: 10px;">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                    </select>
+                </div>
+                <div style="display: flex;margin-top: 10px;">
+                    <h1>内存(MB)</h1>
+                    <div style="height: 40px;margin-left: 10px;">
+                        <input type="text" name="title" lay-verify="title" autocomplete="off" placeholder="4-1024MB" id="ramInput" class="layui-input" style="height: 20px; width: 165px;">
+                    </div>
+                </div>
+
+
+            </div>
+            <hr class="layui-bg-gray">
+            <div  style="height: 40px;">
+                <button id="dispatch2" style="float: right;margin-right: 10px;background-color: white;">
+                    <h1  style="float: right;color: #CD2626;">确认调度</h1>
+                </button>
+            </div>
+        </div>
+        <div class="layui-card shadow">
+            <div class="layui-card-header" style="background-color:#CD2626;height: 50px; font-size: 20px;color:white;line-height: 50px;">删除应用</div>
+            <div class="layui-card-body" style="height: 90px;">
+                <h1 style="color: #CD2626;">删除应用将会移除所有App在集群中的运行容器,但是会保留应有的注册信息,之后还可以部署</h1>
+                <h1>如果有问题,请联系我们的所有管理员</h1>
+            </div>
+            <hr class="layui-bg-gray">
+            <div  style="height: 40px;" >
+                <button id="del" style="float: right;margin-right: 10px;background-color: white;">
+                    <img style='margin-right: 5px;'src="../../images/delete.png">
+                    <h1  style="float: right;color: #CD2626;">删除</h1>
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script type="text/javascript">
+    var user_name = document.cookie.split(" ")[0];
+    var power = document.cookie.split(" ")[1];
+    var service_name;
+    //request_container_view_all();
+    $(function () {
+
+        //方法二：
+        (function ($) {
+            $.getUrlParam = function (name) {
+                var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+                var r = window.location.search.substr(1).match(reg);
+                if (r != null) return unescape(r[2]); return null;
+            }
+        })(jQuery);
+
+        //方法二：
+        service_name = $.getUrlParam('service_name');
+
+        //方法一：
+        // var xx = getUrlParam('reurl');
+        console.log("service_name:"+service_name);
+        //init_data(service_name);
+
+        request_copy_view(service_name);
+        button_Listener(service_name);
+        request_service_detail(service_name);
+    });
+
+    //监听按钮事件
+    function button_Listener(service_name){
+        //删除按钮
+        var del = document.getElementById('del');
+        if(del == null){
+            console.log("没有获取");
+        }
+        //删除按钮点击事件
+        del.addEventListener('click',function(event){
+            console.log("1333333");
+            layer.confirm('真的删除服务吗？', function (index) {
+                // 以刷新页面为删除方式 不用一下两行
+                //obj.del();
+                request_service_delete(service_name);
+                layer.close(index);
+            });
+        });
+        del.addEventListener('mousemove',function(event){
+            del.style = "float: right;margin-right: 10px;background-color: gray;";
+        });
+        del.addEventListener('mouseout',function(event){
+            del.style = "float: right;margin-right: 10px;background-color: white;";
+        });
+
+        //确定按钮调度一
+        var dispatch1 = document.getElementById('dispatch1');
+        dispatch1.addEventListener('click',function(event){
+            var testSelect = document.getElementById('testSelect');
+            var index = testSelect.selectedIndex;
+            var value = testSelect.options[index].value;
+            if(value != null && value > 0){
+                request_modify_copy_num(service_name,value);
+            }
+        });
+        dispatch1.addEventListener('mousemove',function(event){
+            dispatch1.style = "float: right;margin-right: 10px;background-color: gray;";
+        });
+        dispatch1.addEventListener('mouseout',function(event){
+            dispatch1.style = "float: right;margin-right: 10px;background-color: white;";
+        });
+        var dispatch2 = document.getElementById('dispatch2');
+        dispatch2.addEventListener('click',function(event){
+            var cpuSelect = document.getElementById("cpuSelect");
+            var index = cpuSelect.selectedIndex;
+            var cpuNum = cpuSelect.options[index].value;
+            var ramNum = $("#ramInput").val();
+            if(cpuNum > 0 && ramNum != ""){
+                console.log(cpuNum+"   "+ramNum);
+                request_modify_resource(service_name,cpuNum,ramNum);
+            }else{
+                alert("获取数据为空");
+            }
+
+        });
+        dispatch2.addEventListener('mousemove',function(event){
+            dispatch2.style = "float: right;margin-right: 10px;background-color: gray;";
+        });
+        dispatch2.addEventListener('mouseout',function(event){
+            dispatch2.style = "float: right;margin-right: 10px;background-color: white;";
+        });
+    }
+
+    function service_detail(data){
+        var image_name = document.getElementById('img_name');
+        img_name.innerText = "镜像名: "+data.image_name;
+        var copy_num = document.getElementById('copy_num');
+        copy_num.innerText = "副本数: "+data.copy_num;
+        var cr = document.getElementById('cr');
+        cr.innerText =       "CPU/内存大小: "+data.cpu+"内核"+"/"+data.ram+"MB";
+        var mount_dir = document.getElementById('mount_dir');
+        mount_dir.innerText= "挂载目录: "+data.mount_dir;
+        var work_dir = document.getElementById('work_dir');
+        work_dir.innerText = "工作目录: "+ data.work_dir;
+    }
+
+    //div的初始化
+    function div_init(num){
+        var above = document.getElementById('above');
+        above.innerText = "运行时状况[Up/Total="+num+"/"+num+"]";
+        var instancesNum = document.getElementById('instancesNum');
+        instancesNum.innerText = "当前运行实例数量:"+num;
+    }
+
+    //表格初始化
+    function table_init(data,service_name){
+        var i = 0;
+        var j = data.length;
+        var row;
+        for( i = 0 ; i < data.length; i++){
+            let row = document.getElementById('table').insertRow();
+            // row.addEventListener('click',function(event){
+            // 	console.log("111111111");
+            // 	row.style = "background-color:gray;";
+            // });
+            row.addEventListener('mousemove',function(event){
+                row.style = "background-color:gray;height:40px;border-bottom: 1px solid gray;";
+            });
+            row.addEventListener('mouseout',function(event){
+                row.style = "background-color:white;height:40px;border-bottom: 1px solid gray;";
+            });
+            row.style = "height:40px;border-bottom: 1px solid gray;";
+            if(row != null){
+                cell = row.insertCell();
+                cell.style = "color:#FF00FF;margin-left:10px;width:160px;";
+                h1 = document.createElement('h1');
+                h1.style="margin-left:20px;";
+                h1.innerText = data[i].container_id.substring(0,10);
+                cell.appendChild(h1);
+                cell = row.insertCell();
+                cell.style = "color:#00FF00;";
+                h2 = document.createElement('h1');
+                h2.innerText = data[i].host_ip;
+                cell.appendChild(h2);
+                cell = row.insertCell();
+                cell.style = "color:#00FF00;";
+                cell.innerHTML = data[i].host_port;
+                cell = row.insertCell();
+                cell.style = "color:#00FF00;";
+                cell.innerHTML = data[i].container_port;
+                cell = row.insertCell();
+                var button = document.createElement('button');
+                button.className = "layui-btn layui-btn-xs";
+                button.innerText = "进入";
+                cell.appendChild(button);
+            }
+            button.addEventListener('click',function(event){
+                var url = 'terminal.html?container_ip=';
+                var arg = $(this).parent().parent().children();
+                console.log(arg[2].innerText);
+                let container_ip  = arg[1].innerText;
+                let container_id  = arg[0].innerText;
+                console.log("container_ip:"+"  "+container_ip+"container_id"+" "+container_id);
+                if(container_ip == null || container_ip == "" || container_id == null || container_id == ""){
+                    alert("容器id或者容器ip不存在,无法打开到web终端页面");
+                }else{
+                    url =url + container_ip + "&container_id=" + container_id +"&service_name=" + service_name;
+                    window.open(url);
+                }
+            });
+        }
+    }
+
+    //调整cpu,内存配置
+    function request_modify_resource(service_name,cpu,ram){
+        URL = Ip+"request_modify_resource";
+        axios.get(URL,{
+            params:{
+                user_name:user_name,
+                service_name:service_name,
+                cpu:cpu,
+                ram:ram
+            }
+        })
+            .then(function (response){
+                data = response.data;
+                console.log(data);
+                if(data == "success"){
+                    window.location.reload();
+                }else{
+                    alert("修改失败");
+                }
+            })
+            .catch(function (error){
+                alert("错误");
+                console.log(error);
+            });
+    }
+
+    //修改副本数量
+    function request_modify_copy_num(service_name,value){
+        URL = Ip+"request_modify_copy_num";
+        axios.get(URL,{
+            params:{
+                user_name:user_name,
+                service_name:service_name,
+                copy_num:value
+            }
+        })
+            .then(function (response){
+                data = response.data;
+                console.log(data);
+                if(data == "success"){
+                    window.location.reload();
+                }
+            })
+            .catch(function (error){
+                setTimeout(window.location.reload(),"3000");
+                console.log(error);
+            });
+    }
+
+    //查询副本信息
+    function request_copy_view(service_name){
+
+        layui.use('layer',function(){
+            var loading = layer.msg("数据加载中...");
+            URL = Ip+"request_copy_view";
+            axios.get(URL,{
+                params:{
+                    user_name:user_name,
+                    service_name:service_name
+                }
+            })
+                .then(function (response){
+                    data = response.data;
+                    console.log(data);
+                    if(data != null){
+                        div_init(data.length);
+                        table_init(data,service_name);
+                        layer.close(loading);
+                    }
+
+                })
+                .catch(function (error){
+                    console.log(error);
+                });
+        });
+
+    }
+
+    //查找服务细节
+    function request_service_detail(service_name){
+        URL = Ip+"request_service_detail";
+        axios.get(URL,{
+            params:{
+                user_name:user_name,
+                service_name:service_name
+            }
+        })
+            .then(function (response){
+                data = response.data;
+                console.log(data);
+                if(data != null){
+                    service_detail(data);
+                }
+            })
+            .catch(function (error){
+                alert("错误");
+                console.log(error);
+            });
+    }
+    //删除服务
+    function request_service_delete(service_name){
+        URL = Ip+"request_service_delete";
+        axios.get(URL,{
+            params:{
+                user_name:user_name,
+                service_name:service_name
+            }
+        })
+            .then(function (response){
+                data = response.data;
+                console.log(data);
+                if(data == "success"){
+                    alert("删除应用成功");
+                    if(power == "user"){
+                        window.location.href = "my_service.html";
+                    }else{
+                        window.location.href = "../admin/service_manage.html";
+                    }
+
+                }else{
+                    alert("删除应用失败");
+                }
+            })
+            .catch(function (error){
+                alert("错误");
+                console.log(error);
+            });
+    }
+
+
+</script>
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>DockerPaas</title>
+
+    <!-- 公共样式 开始 -->
+    <link rel="stylesheet" type="text/css" href="../../css/base.css">
+    <link rel="stylesheet" type="text/css" href="../../css/iconfont.css">
+    <script type="text/javascript" src="../../framework/jquery-1.11.3.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../layui/css/layui.css">
+    <script type="text/javascript" src="../../layui/layui.js"></script>
+    <!-- 滚动条插件 -->
+    <link rel="stylesheet" type="text/css" href="../../css/jquery.mCustomScrollbar.css">
+    <script src="../../framework/jquery-ui-1.10.4.min.js"></script>
+    <script src="../../framework/jquery.mousewheel.min.js"></script>
+    <script src="../../node_modules/axios/dist/axios.min.js"></script>
+    <script src="../../framework/jquery.mCustomScrollbar.min.js"></script>
+    <script src="../Ip.js"></script>
+    <script src="../../framework/cframe.js"></script>
+    <!-- 仅供所有子页面使用 -->
+    <!-- 公共样式 结束 -->
+
+    <style>
+        .layui-form-label{
+            width: 100px;
+        }
+        .layui-input-block{
+            margin-left: 130px;
+        }
+        .layui-form{
+            margin-right: 30%;
+        }
+        .top{
+            margin-top: 20px;
+        }
+        .shadow{
+            box-shadow: 5px 5px 5px #888888;
+        }
+
+        .div1{
+            width: 80%;
+            margin-left: 7%;
+        }
+        .div_child1{
+            background-color: #BCEE68;
+        }
+    </style>
+
+</head>
+<body>
+<div  style="display: flex;">
+    <div  style="float: left;width: 60%; opacity:0.75; " id="menu">
+        <!-- <div class="layui-card shadow div1" >
+            <div class="layui-card-header div_child1" >
+                <h style="float: left;">卡片</h>
+                <i class="icon iconfont icon-shezhi" style="float: right;margin-right: 5px"></i>
+            </div>
+            <div class="layui-card-body">
+                  卡片式面板面板通常用于非白色背景色的主体内<br>
+                  从而映衬出边框投影
+                  <div style="background-color:#BCEE68; width: 100px; color:white; margin-top: 10px;">
+                      <div style="margin-left: 5px;">
+                          Proc<br>
+                          web<br>
+                          类型web<br>
+                          负载0/32MB<br>
+                          实例1/1
+                      </div>
+                  </div>
+            </div>
+            <hr class="layui-bg-gray">
+            <div class="layui-card-body">
+                  <a href="pages.html" style="color: #000080;">查看详情</a>
+            </div>
+        </div> -->
+        <!-- <div class="layui-card shadow div1" >
+            <hr class="layui-bg-black" style="height: 6px;">
+            <div class="layui-card-body" >
+                <h style="float: left;font-size: 20px;line-height: 30px;">Ubuntu</h>
+                <i class="icon iconfont icon-yingyongzhongxin" style="float: right;margin-right: 5px;"></i>
+            </div>
+            <br>
+            <div class="layui-card-body" style="height: 30px;">
+                <h style="float: left;font-size: 15px;">1核-2GB内存-系统盘40GB SSD云盘- 上海</h>
+            </div>
+            <br>
+            <div class="layui-card-body" style="height: 40px;">
+                <td style="float: left;">
+                    <img src="lvdianx.png">
+                </td>
+                <h1 style="display: inline-block;">运行中</h1>
+            </div>
+        </div>
+        <div class="layui-card shadow div1" >
+            <hr class="layui-bg-black" style="height: 6px;">
+            <div class="layui-card-body" >
+                <h style="float: left;font-size: 20px;line-height: 30px;">Ubuntu</h>
+                <i class="icon iconfont icon-yingyongzhongxin" style="float: right;margin-right: 5px;"></i>
+            </div>
+            <br>
+            <div class="layui-card-body" style="height: 30px;">
+                <h style="float: left;font-size: 15px;">1核-2GB内存-系统盘40GB SSD云盘- 上海</h>
+            </div>
+            <br>
+            <div class="layui-card-body" style="height: 40px;">
+                <td style="float: left;">
+                    <img src="lvdianx.png">
+                </td>
+                <h1 style="display: inline-block;">运行中</h1>
+            </div>
+        </div>
+        <div class="layui-card shadow div1" >
+            <hr class="layui-bg-black" style="height: 6px;">
+            <div class="layui-card-body" >
+                <h style="float: left;font-size: 20px;line-height: 30px;">Ubuntu</h>
+                <i class="icon iconfont icon-yingyongzhongxin" style="float: right;margin-right: 5px;"></i>
+            </div>
+            <br>
+            <div class="layui-card-body" style="height: 30px;">
+                <h style="float: left;font-size: 15px;">1核-2GB内存-系统盘40GB SSD云盘- 上海</h>
+            </div>
+            <br>
+            <div class="layui-card-body" style="height: 40px;">
+                <td style="float: left;">
+                    <img src="lvdianx.png">
+                </td>
+                <h1 style="display: inline-block;">运行中</h1>
+            </div>
+        </div>
+        <div class="layui-card shadow div1" >
+            <hr class="layui-bg-black" style="height: 6px;">
+            <div class="layui-card-body" >
+                <h style="float: left;font-size: 20px;line-height: 30px;">Ubuntu</h>
+                <i class="icon iconfont icon-yingyongzhongxin" style="float: right;margin-right: 5px;"></i>
+            </div>
+            <br>
+            <div class="layui-card-body" style="height: 30px;">
+                <h style="float: left;font-size: 15px;">1核-2GB内存-系统盘40GB SSD云盘- 上海</h>
+            </div>
+            <br>
+            <div class="layui-card-body" style="height: 40px;">
+                <td style="float: left;">
+                    <img src="lvdianx.png">
+                </td>
+                <h1 style="display: inline-block;">运行中</h1>
+            </div>
+        </div>
+        <div class="layui-card shadow div1" >
+            <hr class="layui-bg-black" style="height: 6px;">
+            <div class="layui-card-body" >
+                <h style="float: left;font-size: 20px;line-height: 30px;">Ubuntu</h>
+                <i class="icon iconfont icon-yingyongzhongxin" style="float: right;margin-right: 5px;"></i>
+            </div>
+            <br>
+            <div class="layui-card-body" style="height: 30px;">
+                <h style="float: left;font-size: 15px;">1核-2GB内存-系统盘40GB SSD云盘- 上海</h>
+            </div>
+            <br>
+            <div class="layui-card-body" style="height: 40px;">
+                <td style="float: left;">
+                    <img src="lvdianx.png">
+                </td>
+                <h1 style="display: inline-block;">运行中</h1>
+            </div>
+        </div> -->
+
+    </div>
+    <div style="display:inline-block; width: 35%;opacity:0.75; margin-top: 10px;">
+        <div class="layui-card shadow">
+            <div class="layui-card-header" style="background-color: #C7C7C7;height: 50px; font-size: 20px;color:white;line-height: 50px;">应用部署概况</div>
+            <div class="layui-card-body" style="height: 200px;">
+                <h1 style="color: gray;">下面列举了目前你管理的服务部署状况。</h1><br>
+                <h1 style="margin-left: 38px;" id="service_num"></h1>
+                <h1 style="margin-left: 38px;" id="copy_num"></h1>
+                <h1 style="margin-left: 38px;" id="service_node"></h1>
+                <h1 style="margin-left: 15px;" id="cpu_num"></h1>
+                <h1 style="margin-left: 13px;" id="ram_num"></h1>
+            </div>
+        </div>
+        
+
+    </div>
+</div>
+<script type="text/javascript">
+    //添加服务,以div形式放入到页面中
+    user_name = document.cookie.split(' ')[0];
+    var service_num = 0 ,copy_num = 0,cpu_num = 0 ,ram_num = 0;
+    request_service_view(user_name);
+    request_service_view_all();
+    //request_service_view(user_name);
+    function addService(service_name,cpu,ram){
+        var menu = document.getElementById('menu');
+        var div_parent = document.createElement('div');
+        div_parent.className = "layui-card shadow div1";
+
+        var div_child1 = document.createElement('div');
+        setDivChild1(div_child1,service_name);
+        var div_child2 = document.createElement('div');
+        setDivChild2(div_child2,cpu,ram);
+        var div_child3 = document.createElement('div');
+        setDivChild3(div_child3);
+
+        var hr = document.createElement('hr');
+        hr.className = "layui-bg-black";
+        hr.style = "height: 6px;";
+
+        var br = document.createElement('br');
+
+        div_parent.appendChild(hr);
+        div_parent.appendChild(div_child1);
+        div_parent.appendChild(br);
+        div_parent.appendChild(div_child2);
+        div_parent.appendChild(div_child3);
+        menu.appendChild(div_parent);
+
+        //应用服务点击事件
+        div_parent.addEventListener('click',function(event){
+            var url = "my_service_detail.html?service_name="+service_name;
+            window.location.href = url;
+        });
+    }
+
+    //设置右边第一个div
+    function setRightFirstDiv(service_num,copy_num,cpu_num,ram_num){
+        console.log(service_num+"   "+ copy_num+"  " + cpu_num+ "   " + ram_num);
+        var service_num1 = document.getElementById('service_num');
+        service_num1.innerText = "应用数量:  "+service_num;
+        var copy_num1 = document.getElementById('copy_num');
+        copy_num1.innerText = "实例数量:   " + copy_num;
+        var service_node = document.getElementById('service_node');
+        service_node.innerText = "服务节点:     -";
+        var cpu_num1 = document.getElementById('cpu_num');
+        cpu_num1.innerText = "预留cpu总和:        " + cpu_num + "内核";
+        var ram_num1 = document.getElementById('ram_num');
+        ram_num1.innerText = "预留内存总和:       " + ram_num + "MB";
+    }
+
+
+    //设置divchild1
+    function setDivChild1(div_child1,service_name){
+        div_child1.className = "layui-card-body";
+        var h = document.createElement('h');
+        h.style = "float: left;font-size: 20px;line-height: 30px;";
+        h.innerText = service_name;
+        var i = document.createElement('i');
+        i.className = "icon iconfont icon-yingyongzhongxin";
+        i.style = "float: right;margin-right: 5px;";
+        i.addEventListener('click',function(event){
+            var url = "my_service_detail.html?service_name="+service_name;
+            window.location.href = url;
+        });
+        div_child1.appendChild(h);
+        div_child1.appendChild(i);
+    }
+    //设置divchild2
+    function setDivChild2(div_child2,cpu,ram){
+        div_child2.className = "layui-card-body";
+        div_child2.style = "height: 30px;";
+        var h2 = document.createElement('h2');
+        h2.style = "float: left;font-size: 15px;";
+        var text = cpu+"核-"+ram+"GB内存-系统盘40GB SSD云盘-上海";
+        h2.innerText = text;
+        div_child2.appendChild(h2);
+    }
+    //设置divchild3
+    function setDivChild3(div_child3){
+        div_child3.className = "layui-card-body";
+        div_child3.style  = "height: 40px;";
+        var td = document.createElement('td');
+        td.style = "float: left;";
+        var img = document.createElement('img');
+        img.src = "../../images/lvdianx.png";
+        var h3 = document.createElement('h');
+        h3.style = "display: inline-block;";
+        h3.innerText = "运行中";
+        td.appendChild(img);
+        div_child3.appendChild(td);
+        div_child3.appendChild(h3);
+    }
+    //查询所有的服务
+    function request_service_view(user_name){
+        URL = Ip+"request_service_view";
+        axios.get(URL,{
+            params:{
+                user_name:user_name
+            }
+        })
+            .then(function (response){
+                console.log("111111");
+                data = response.data;
+                if(data == null){
+                    alert("获取失败");
+                }else{
+                    var i = 0 ;
+                    for( i = 0 ; i < data.length; i++){
+                        addService(data[i].service_name,data[i].cpu,data[i].ram);
+                    }
+                }
+            })
+            .catch(function (error){
+                alert("获取失败");
+                console.log(error);
+            });
+    }
+
+    //查询用户服务的一些配置
+    function request_service_view_all(){
+        URL = Ip+"request_service_view_all";
+        axios.get(URL,{
+            params:{
+                admin_name:"root"
+
+            }
+        })
+            .then(function (response){
+                console.log("111111");
+                data = response.data;
+                console.log(data);
+                if(data == null){
+                    alert("获取失败");
+                }else{
+                    var i = 0,j;
+                    for( i = 0 ; i < data.length; i++){
+                        if(data[i].user_name == user_name){
+                            service_num = service_num + 1;
+                            copy_num = copy_num + data[i].copy_num;
+                            cpu_num = cpu_num + data[i].cpu;
+                            ram_num = ram_num + data[i].ram;
+                        }
+                    }
+
+                    setRightFirstDiv(service_num,copy_num,cpu_num,ram_num);
+                }
+            })
+            .catch(function (error){
+                alert("获取失败");
+                console.log(error);
+            });
+    }
+</script>
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>DockerPaas</title>
+		<link rel="stylesheet" type="text/css" href="../css/base.css">
+		<link rel="stylesheet" type="text/css" href="../css/iconfont.css">
+		<link rel="stylesheet" type="text/css" href="../layui/css/layui.css">
+
+		<script type="text/javascript" src="../layui/layui.js"></script>
+
+		<script type="text/javascript" src="../framework/jquery-1.11.3.min.js"></script>
+		
+		<!-- 公共样式 结束 -->
+		<link rel="stylesheet" type="text/css" href="../css/login1.css">
+		<script type="text/javascript" src="../js/login1.js"></script>
+		<script src="../node_modules/axios/dist/axios.min.js"></script>
+
+		<script src="Ip.js"></script>
+		<style type="text/css">
+			.s1{
+				margin-top: 10px;
+			}
+			.b1{
+				margin-left: 40px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="loginBg"></div>
+		<div class="login_main">
+			<div class="box">
+				<div class="left">
+					<img src="../images/docker_jump.png" />
+					<p>DockerPaas</p><br>
+					<button onclick="get_passwd()" >找回密码</button>
+				</div>
+
+				<div class="right">
+					<form class="layui-form layui-form-pane" method="get">
+						<div class="layui-form-item">
+							<label class="layui-form-label login_title"><i class="iconfont icon-gerenzhongxin-denglu"></i></label>
+							<div class="layui-input-block login_input">
+								<input type="text" name="name"  lay-verify="title" required autocomplete="off" placeholder="请输入您的用户名" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label login_title"><i class="iconfont icon-mima1"></i></label>
+							<div class="layui-input-block login_input">
+								<input type="password" name="password"  lay-verify="title" required autocomplete="off" placeholder="请输入密码" class="layui-input">
+							</div>
+						</div>
+						<div class="s1">
+							<button class="layui-btn login_but" lay-submit lay-filter="loginBut" style="margin-left: 30px">登 录</button>
+							<button class="layui-btn login_but" lay-submit lay-filter="register" style="margin-left: 40px">注 册</button>
+						</div>
+
+
+					</form>
+				</div>
+
+
+
+			</div>
+		</div>
+		<script>
+			layui.use('form', function() {
+				var form = layui.form;
+				//监听提交
+				form.on('submit(loginBut)', function(data) {
+					var flag = false;
+					// layer.msg(JSON.stringify(data.field));
+					console.log(data.field);
+					var user_name = data.field.name;
+					var password = data.field.password;
+					if(user_name == "" || password == ""){
+						layer.msg("请先输入用户名和密码");
+					}
+					else{
+						document.cookie = user_name;
+						login(user_name,password);
+					}
+					return flag;
+				});
+				form.on('submit(register)', function() {
+					layui.use('layer', function () {
+						var layer = layui.layer;
+						//iframe层-父子操作
+						layer.open({
+							type: 2,
+							area: ['400px', '400px'],
+							fixed: false, //不固定
+							maxmin: true,
+							content: 'register.html'
+						});
+					});
+				})
+			});
+
+			function login(user_name,password) {
+				URL = Ip + "request_user_login";
+				axios.get(URL, {
+					params: {
+						user_name: user_name,
+						password: password
+					}
+				})
+				.then(function (response) {
+					//alert(response);
+					if (response.data == "root") {
+					document.cookie = document.cookie + " root";
+					window.location.href = 'admin/main_admin.html';
+					} else if (response.data == "user") {
+					document.cookie = document.cookie + " user";
+					window.location.href = 'user/main_user.html';
+					} else if (response.data == "admin") {
+					document.cookie = document.cookie + " admin";
+					window.location.href = 'admin/main_admin.html';
+					} else {
+					alert(response.data);
+					}
+				})
+				.catch(function (error) {
+					layer.open({
+						content: "登录失败",
+						yes:function(index,layero){
+							layer.close(index); //关闭弹出框
+						}
+					})
+					console.log(error);
+				});
+			}
+
+
+			function get_passwd(){
+				layui.use('layer', function () {
+					var layer = layui.layer;
+					//iframe层-父子操作
+					layer.open({
+						type: 2,
+						area: ['400px', '400px'],
+						fixed: false, //不固定
+						maxmin: true,
+						content: 'modify_password.html'
+					});
+				});
+			}
+		</script>
+	</body>
+
+</html>

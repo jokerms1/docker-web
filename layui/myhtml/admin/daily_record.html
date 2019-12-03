@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+
+    <title>DockerPaas</title>
+
+    <!-- 公共样式 开始 -->
+    <link rel="stylesheet" type="text/css" href="../../css/base.css">
+    <link rel="stylesheet" type="text/css" href="../../css/iconfont.css">
+    <script type="text/javascript" src="../../framework/jquery-1.11.3.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../layui/css/layui.css">
+    <script type="text/javascript" src="../../layui/layui.js"></script>
+    <!-- 滚动条插件 -->
+    <link rel="stylesheet" type="text/css" href="../../css/jquery.mCustomScrollbar.css">
+    <script src="../../framework/jquery-ui-1.10.4.min.js"></script>
+    <script src="../../framework/jquery.mousewheel.min.js"></script>
+    <script src="../../node_modules/axios/dist/axios.min.js"></script>
+    <script src="../../framework/jquery.mCustomScrollbar.min.js"></script>
+    <script src="../../framework/cframe.js"></script><!-- 仅供所有子页面使用 -->
+
+    <script src="../Ip.js"></script>
+    <!-- 公共样式 结束 -->
+
+</head>
+
+<body>
+<div>
+    <div class="console">
+        <form class="layui-form" action="">
+
+            <table class="layui-hide" id="demo" lay-filter="demo"></table>
+<!--            <script type="text/html" id="barDemo">-->
+<!--                <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>-->
+<!--                <a class="layui-btn layui-btn-xs" lay-event="go_in">进入</a>-->
+<!--            </script>-->
+        </form>
+    </div>
+
+    <script type="text/javascript">
+        request_lookover_journal_all();
+        // table_change();
+
+
+        function request_lookover_journal_all(){
+            var URL = Ip +'request_lookover_journal_all';
+            axios.get(URL,{
+                params:{
+                }
+            })
+                .then(function (response){
+                    data = response.data;
+                    console.log(data);
+                    table_init(data);
+                })
+                .catch(function (error){
+                    alert("错误");
+                    console.log(error);
+                });
+        }
+
+        function table_init(data){
+            layui.use('table', function(){
+                console.log(data);
+                var table = layui.table;
+                //展示已知数据
+                table.render({
+                    elem: '#demo'
+                    ,cols: [[ //标题栏
+                        {field: 'time', title: '时间',fixed:true,  sort: true},
+                        {field: 'user_name', title: '用户名',fixed:true},
+                        {field: 'info',title:'具体信息',fixed:true},
+                        // {fixed: 'right',title:'操作',toolbar:'#barDemo',fixed:true}
+                    ]]
+                    ,data: data
+                    ,even: true
+                    ,page: true
+                });
+            });
+        }
+
+        // function table_change() {
+        //     layui.use('table', function () {
+        //         var table = layui.table;
+        //         // obj 是一行数据
+        //         table.on('tool(demo)', function (obj) {
+        //             var data = obj.data;        //data是  一行数据
+        //             var service_name = data.service_name;
+        //             if (obj.event === 'del'){
+        //                 layer.confirm('真的删除服务吗？', function (index) {
+        //                     // 以刷新页面为删除方式 不用一下两行
+        //                     //obj.del();
+        //                     post_del_service(service_name,obj);
+        //                     layer.close(index);
+        //                 });
+        //             }
+        //             if (obj.event === 'go_in'){
+        //                 var url = "../user/my_service_detail.html?service_name="+service_name;
+        //                 console.log(url);
+        //                 window.location.href = url;
+        //             }
+        //         });
+        //
+        //     });
+        // }
+
+        function  post_del_service(service_name,obj){
+            //alert("container_name:"+container_name);
+            var URL = Ip+"request_service_delete";
+            axios.get(URL,{
+                params:{
+                    service_name:service_name
+                }
+            })
+                .then(function (response){
+                    // 提示是否删除成功
+                    console.log(response.data);
+                })
+                .catch(function (error){
+                    alert("错误");
+                    console.log(error);
+                });
+        }
+    </script>
+
+    <!--    &lt;!&ndash; layUI 分页模块 &ndash;&gt;-->
+    <!--    <div id="pages"></div>-->
+    <!--    <script>-->
+    <!--        layui.use(['laypage', 'layer'], function() {-->
+    <!--            var laypage = layui.laypage,-->
+    <!--                layer = layui.layer;-->
+
+    <!--            //总页数大于页码总数-->
+    <!--            laypage.render({-->
+    <!--                elem: 'pages'-->
+    <!--                ,count: 100-->
+    <!--                ,layout: ['count', 'prev', 'page', 'next', 'limit', 'skip']-->
+    <!--                ,jump: function(obj){-->
+    <!--                    console.log(obj)-->
+    <!--                }-->
+    <!--            });-->
+    <!--        });-->
+    <!--    </script>-->
+
+</div>
+</body>
+
+</html>

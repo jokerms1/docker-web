@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>DockerPaas</title>
+
+    <!-- 公共样式 开始 -->
+    <link rel="stylesheet" type="text/css" href="../../css/base.css">
+    <link rel="stylesheet" type="text/css" href="../../css/iconfont.css">
+    <script type="text/javascript" src="../../framework/jquery-1.11.3.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../layui/css/layui.css">
+    <script type="text/javascript" src="../../layui/layui.js"></script>
+    <!-- 滚动条插件 -->
+    <link rel="stylesheet" type="text/css" href="../../css/jquery.mCustomScrollbar.css">
+    <script src="../../framework/jquery-ui-1.10.4.min.js"></script>
+    <script src="../../framework/jquery.mousewheel.min.js"></script>
+    <script src="../../framework/jquery.mCustomScrollbar.min.js"></script>
+    <script src="../../framework/cframe.js"></script><!-- 仅供所有子页面使用 -->
+    <!-- 公共样式 结束 -->
+
+    <script type="text/javascript" src="../../node_modules/axios/dist/axios.min.js"></script>
+    <script type="text/javascript" src="../Ip.js"></script>
+
+
+
+
+    <style>
+        .layui-form-label{
+            width: 100px;
+        }
+        .layui-input-block{
+            margin-left: 130px;
+        }
+    </style>
+
+</head>
+
+<body>
+<div class="cBody">
+    <form id="addForm" class="layui-form" action="">
+        <div class="layui-form-item">
+            <label class="layui-form-label">服务名</label>
+            <div class="layui-input-inline shortInput">
+                <input type="text" name="service_name" required lay-verify="required" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">副本数量</label>
+            <div class="layui-input-inline shortInput">
+                <input type="text" name="copy_num" required lay-verify="required" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">cpu个数</label>
+            <div class="layui-input-inline shortInput">
+                <input type="text" name="cpu" required lay-verify="required" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">内存大小</label>
+            <div class="layui-input-inline shortInput">
+                <input type="text" name="ram" required lay-verify="required" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">javacmd</label>
+            <div class="layui-input-inline shortInput">
+                <input type="text" name="java_cmd" required lay-verify="required" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button type="button" class="layui-btn layui-btn-normal" id="choose_file">选择文件</button>
+<!--                <label id = "file_name_prompt">  </label>-->
+                <button type="button" class="layui-btn" id="submit" style = "margin-left:15px;" onclick = "print_xx()">确认申请</button>
+                <button type="button" class="layui-btn" onclick="quit()" style = "margin-left:15px;">退出</button>
+            </div>
+        </div>
+
+
+<!--        <div>-->
+<!--            <button type="button" id="choose_file">选择文件</button>-->
+<!--        </div>-->
+
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+
+            </div>
+        </div>
+    </form>
+
+
+    <script>
+
+        var user_name = document.cookie.split(" ")[0];    //cookie
+        image_name = "java";
+
+        layui.use(['upload'], function() {
+            // var form = layui.form;
+            var upload = layui.upload;
+            var layer = layui.layer;
+            var $ = layui.jquery;
+
+            var index_xxx;
+            upload.render({
+                elem: '#choose_file',
+                url: Ip + "request_service_create",
+                auto: false,//选择文件后不自动上传
+                bindAction: '#submit',
+                accept: 'file',//普通文件
+                field:'java_file',
+                //上传前的回调
+                before: function () {
+                    this.data = {
+                        user_name:user_name,
+                        image_name:image_name,
+                        service_name:$('input[name="service_name"]').val(),
+                        copy_num:$('input[name="copy_num"]').val(),
+                        cpu:$('input[name="cpu"]').val(),
+                        ram:$('input[name="ram"]').val(),
+                        java_cmd:$('input[name="java_cmd"]').val()
+                    }
+                    index_xxx = layer.load(2, {time: 7000});
+
+                },
+                // //选择文件后的回调
+                choose: function (obj) {
+                    layer.open({
+                        content: "选择文件成功",
+                        yes:function(index){
+                            layer.close(index); //关闭弹出框
+                        }
+                    });
+                    console.log(obj);
+
+
+                },
+                //操作成功的回调
+                done: function (res) {
+                    layer.open({
+                        content: "申请成功",
+                        yes:function(index){
+                            layer.close(index); //关闭弹出框
+                            layer.close(index_xxx);
+                            quit();
+                        }
+                    });
+                    console.log(res);
+
+                },
+                //上传错误回调
+                error: function (res) {
+                    // layer.closeAll('loading');
+                    layer.open({
+                        content: "申请失败",
+                        yes:function(index){
+                            layer.close(index); //关闭弹出框
+                            quit();
+                        }
+                    });
+                    console.log(JSON.stringify(res));
+                }
+            });
+        });
+
+        function print_xx() {
+            layer_msg("正在申请服务中，等待文件上传...",{time:4000});
+        }
+
+        function quit(){
+            var index = parent.layer.getFrameIndex(window.name);
+            console.log("层数:"+ index);
+            parent.layer.close(index);//关闭当前页
+        }
+    </script>
+
+
+</div>
+</body>
+</html>

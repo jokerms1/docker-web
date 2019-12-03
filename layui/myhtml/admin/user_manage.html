@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>DockerPaas</title>
+
+    <!-- 公共样式 开始 -->
+    <link rel="stylesheet" type="text/css" href="../../css/base.css">
+    <link rel="stylesheet" type="text/css" href="../../css/iconfont.css">
+    <script type="text/javascript" src="../../framework/jquery-1.11.3.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../layui/css/layui.css">
+    <script type="text/javascript" src="../../layui/layui.js"></script>
+    <!-- 滚动条插件 -->
+    <link rel="stylesheet" type="text/css" href="../../css/jquery.mCustomScrollbar.css">
+    <script src="../../framework/jquery-ui-1.10.4.min.js"></script>
+    <script src="../../framework/jquery.mousewheel.min.js"></script>
+    <script src="../../framework/jquery.mCustomScrollbar.min.js"></script>
+    <script src="../../framework/cframe.js"></script><!-- 仅供所有子页面使用 -->
+    <!-- 公共样式 结束 -->
+    <script src="../../node_modules/axios/dist/axios.min.js"></script>
+
+    <script src="../Ip.js"></script>
+
+
+    <!-- <table class="layui-hide" id="demo" lay-filter="demo"></table>
+    <script type="text/html" id="barDemo">
+        <a class="layui-btn layui-btn-xs" lay-event="run">运行</a>
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="stop">停止</a>
+        <a class="layui-btn layui-btn-xs" lay-event="rename">重命名</a>
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    </script> -->
+
+<!--    <style type="text/css">-->
+<!--        *{-->
+<!--            margin: 0px;-->
+<!--            padding: 0px;-->
+<!--        }-->
+<!--        video{-->
+<!--            position: fixed;-->
+<!--            right: 0px;-->
+<!--            bottom: 0px;-->
+<!--            min-width: 100%;-->
+<!--            min-height: 100%;-->
+<!--            height: auto;-->
+<!--            width: auto;-->
+<!--            /*加滤镜*/-->
+<!--            /*-webkit-filter: grayscale(100%);*/-->
+<!--            /*filter:grayscale(100%);*/-->
+<!--        }-->
+<!--        source{-->
+<!--            min-width: 100%;-->
+<!--            min-height: 100%;-->
+<!--            height: auto;-->
+<!--            width: auto;-->
+<!--        }-->
+<!--    </style>-->
+
+
+</head>
+
+<body>
+<!--<body>-->
+<!--<video autoplay="autoplay" loop="loop">-->
+<!--    <source  src="../../images/v.mp4" type="video/mp4" >;-->
+<!--</video>-->
+
+<div class="cBody">
+    <div class="console" style="opacity:0.85;">
+        <form class="layui-form" action="">
+            <div class="layui-form-item">
+                <div class="layui-input-inline">
+                    <input type="text" name="name"  placeholder="输入用户名" autocomplete="off" class="layui-input">
+                </div>
+                <button class="layui-btn" lay-submit lay-filter="formDemo">按用户名检索</button>
+                <button class="layui-btn" lay-submit lay-filter="search_user">只显示用户</button>
+                <button class="layui-btn" lay-submit lay-filter="search_admin">只显示管理员</button>
+                <button class="layui-btn" lay-submit lay-filter="search_all">显示所有用户</button>
+                <!--                <button class="layui-btn" onclick="add_container()">新增</button>-->
+            </div>
+        </form>
+        <table class="layui-hide" id="demo" lay-filter="demo"></table>
+        <script type="text/html" id="barDemo">
+<!--            <a class="layui-btn layui-btn-xs" lay-event="change_power">改权限</a>-->
+            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+        </script>
+    </div>
+
+    <script type="text/javascript">
+        var admin_name = document.cookie.split(" ")[0];
+        var power = document.cookie.split(" ")[0];
+        // console.log("aaaaaaaaaa")
+        page_init("all");
+        table_change();
+
+
+
+        layui.use('form', function() {
+            var form = layui.form;
+
+            //监听提交
+            form.on('submit(formDemo)', function(data) {
+                // layer.msg(JSON.stringify(data.field));
+                var user_name = data.field.name;
+                // search_user(user_name);
+                setTimeout(page_init_bysearch(user_name),1000);
+                // page_init_bysearch(user_name)
+                return false;
+            });
+
+            form.on('submit(search_user)', function() {
+                page_init("user");
+                return false;
+            });
+
+            form.on('submit(search_admin)', function(data) {
+                page_init("admin");
+                return false;
+            });
+            form.on('submit(search_all)', function(data) {
+                page_init("all");
+                return false;
+            });
+        });
+
+
+        function page_init(power){
+            URL = Ip+"request_user_search_by_power";
+            axios.get(URL,{
+                params:{
+                    admin_name:admin_name,
+                    power:power
+                }
+            })
+                .then(function (response){
+                    data = response.data;
+                    console.log(data);
+                    table_init(data);
+                })
+                .catch(function (error){
+                    layer.msg("错误");
+                    console.log(error);
+                });
+        }
+
+        function page_init_bysearch(user_name){
+            console.log(user_name);
+            URL = Ip+"request_user_search_by_id";
+            axios.get(URL,{
+                params:{
+                    user_name:user_name,
+                    admin_name:admin_name
+                }
+            })
+                .then(function (response){
+                    data = response.data;
+                    setTimeout(table_init(data),1000);
+                })
+                .catch(function (error){
+                    layer.msg("搜索结果为空")
+                    // alert("搜索结果为空");
+                    console.log(error);
+                });
+        }
+
+        function table_init(data){
+            layui.use('table', function(){
+                var table = layui.table;
+                //展示已知数据
+                table.render({
+                    elem: '#demo'
+                    ,cols: [[ //标题栏
+                        {field: "user_name", title: '用户名',sort: true},
+                        {field: 'password',title:'密码'},
+                        {field:'power',title:'权限',sort:true,event:'setpower'},
+                        {field:'email',title:'电子邮件'},
+                        // {field:'verify_code',title:'验证码'},
+                        // {field:'status',title:'状态'},
+                        // {field:'time',title:'时间'},
+                        {fixed:'right',title:'操作',toolbar:'#barDemo'}
+                    ]]
+                    ,data: data
+                    // ,even: true
+                    ,width:1000
+                })
+            });
+        }
+
+        function table_change() {
+            layui.use('table', function () {
+                var table = layui.table;
+                // obj 是一行数据
+                table.on('tool(demo)', function (obj) {
+                    var data = obj.data;        //data是  一行数据
+                    // console.log(data);
+                    var user_name = data.user_name;
+                    var power2 = data.power;
+                    // if(obj.event === 'change_power')
+                    // {
+                    //     // layui  开启头部工具栏中有例子
+                    //     var new_power;
+                    //     var tip;
+                    //     if(power == "user")
+                    //     {
+                    //         new_power = "admin";
+                    //         tip = "当前为user，改权限为admin吗"
+                    //         layer.confirm(tip, function (index) {
+                    //             post_change_power(user_name,new_power);
+                    //             layer.close(index); //点击确认后可以 关闭当前确认框
+                    //         });
+                    //     }
+                    //     else if(power == "admin"){
+                    //         new_power = "user";
+                    //         tip = "当前为admin，改权限为user吗"
+                    //         layer.confirm(tip, function (index) {
+                    //             post_change_power(user_name,new_power);
+                    //             layer.close(index); //点击确认后可以 关闭当前确认框
+                    //         });
+                    //     }
+                    //     else{
+                    //         new_power = "null"
+                    //         tip = "无法修改root的权限"
+                    //         layer.confirm(tip, function (index) {
+                    //             layer.close(index); //点击确认后可以 关闭当前确认框
+                    //         });
+                    //     }
+                    // }
+                    if (obj.event === 'del') {
+                        layer.confirm('真的删除用户么', function (index) {
+                            // 以刷新页面为删除方式 不用一下两行
+                            obj.del();
+                            post_del_user(user_name);
+                            layer.close(index);
+                        });
+                    }else if(obj.event === 'setpower'){
+                        console.log(power);
+                        if(power == "root"){
+                            layer.confirm('可以修改的权限',{
+                                time:20000,
+                                btn:['admin','user']
+                            },function(index,layero){
+                                post_change_power(user_name,"admin");
+                                layer.close(index);
+                            },function(index){
+                                post_change_power(user_name,"user");
+                                console.log("2222");
+                            });
+                        }else{
+                            alert('仅有root可修改权限');
+                        }
+
+                    }
+
+                })
+            })
+        }
+        function post_change_power(user_name,power){
+            URL = Ip+"request_user_power_update";
+            var data;
+            axios.get(URL,{
+                params:{
+                    admin_name:admin_name,
+                    user_name:user_name,
+                    power:power
+                }
+            })
+                .then(function (response){
+                    data = response.data;
+                    console.log("改权限得："+data);
+
+                })
+                .catch(function (error){
+                    layer.msg(error);
+                    console.log(error);
+                });
+            setTimeout(page_init("all"),200);      //延迟一秒后刷新页面
+        }
+
+
+
+
+        function post_del_user(user_name){
+            URL = Ip+"request_user_delete";
+            axios.get(URL,{
+                params:{
+                    admin_name:admin_name,
+                    user_name:user_name
+                }
+            })
+                .then(function (response){
+                    // 提示是否删除成功
+                    var data = response.data;
+                    if(data == "success"){
+                        // obj.del();
+                        layer.open({
+                            content: "删除成功",
+                            yes:function(index,layero){
+                                layer.close(index); //关闭弹出框
+                            }
+                        })
+                    }else if(data == "not_delete_service"){
+                        layer.open({
+                            content: "请先删除用户的所有服务",
+                            yes:function(index,layero){
+                                layer.close(index); //关闭弹出框
+                            }
+                        })
+                    }else{
+                        layer.open({
+                            content: "删除失败",
+                            yes:function(index,layero){
+                                layer.close(index); //关闭弹出框
+                            }
+                        })
+                    }
+
+                })
+                .catch(function (error){
+                    layer.msg(error)
+                    console.log(error);
+                });
+            setTimeout(page_init("all"),1000);
+        }
+    </script>
+    <!-- layUI 分页模块 -->
+    <!--    <div id="pages"></div>-->
+    <!--    <script>-->
+    <!--        layui.use(['laypage', 'layer'], function() {-->
+    <!--            var laypage = layui.laypage,-->
+    <!--                layer = layui.layer;-->
+
+    <!--            //总页数大于页码总数-->
+    <!--            laypage.render({-->
+    <!--                elem: 'pages'-->
+    <!--                ,count: 100-->
+    <!--                ,layout: ['count', 'prev', 'page', 'next', 'limit', 'skip']-->
+    <!--                ,jump: function(obj){-->
+    <!--                    console.log(obj)-->
+    <!--                }-->
+    <!--            });-->
+    <!--        });-->
+    <!--    </script>-->
+
+
+    <!--    <script>-->
+    <!--        //修改按钮	updateBut-->
+    <!--        var updateFrame = null;-->
+    <!--        function add_container(){-->
+    <!--            layui.use('layer', function() {-->
+    <!--                var layer = layui.layer;-->
+
+    <!--                //iframe层-父子操作-->
+    <!--                updateFrame = layer.open({-->
+    <!--                    title: "商品信息修改",-->
+    <!--                    type: 2,-->
+    <!--                    area: ['70%', '60%'],-->
+    <!--                    scrollbar: false,	//默认：true,默认允许浏览器滚动，如果设定scrollbar: false，则屏蔽-->
+    <!--                    maxmin: true,-->
+    <!--                    content: 'container.html'-->
+    <!--                });-->
+    <!--            });-->
+
+    <!--        }-->
+    <!--    </script>-->
+
+</div>
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

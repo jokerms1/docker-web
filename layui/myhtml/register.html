@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>DockerPaas</title>
+
+        <!-- 公共样式 开始 -->
+        <link rel="shortcut icon" href="images/favicon.ico"/>
+        <link rel="bookmark" href="images/favicon.ico"/>
+        <link rel="stylesheet" type="text/css" href="../css/base.css">
+        <link rel="stylesheet" type="text/css" href="../css/iconfont.css">
+        <link rel="stylesheet" type="text/css" href="../layui/css/layui.css">
+
+        <script type="text/javascript" src="../layui/layui.js"></script>
+
+        <script type="text/javascript" src="../framework/jquery-1.11.3.min.js"></script>
+        <script src="../node_modules/axios/dist/axios.min.js"></script>
+        <!-- 公共样式 结束 -->
+        <link rel="stylesheet" type="text/css" href="../css/login1.css">
+        <script type="text/javascript" src="../js/login1.js"></script>
+        <script src="Ip.js"></script>
+
+</head>
+<body>
+
+    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 50px;">
+        <legend>用户注册</legend>
+    </fieldset>
+
+    <form class="layui-form layui-form-pane" method="get">
+    <div class="layui-form-item">
+        <label class="layui-form-label">用户名</label>
+        <div class="layui-input-block">
+            <input type="text" name="name" lay-verify="title" autocomplete="off" placeholder="请输入用户名"
+                   class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">密码</label>
+        <div class="layui-input-block">
+            <input type="password" name="password" lay-verify="title" autocomplete="off" placeholder="请输入密码"
+                   class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">邮箱</label>
+            <div class="layui-input-block">
+                <input type="email" name="email" lay-verify="title" autocomplete="off" placeholder="请输入邮箱" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-inline">
+<!--            <div class="layui-input-block">-->
+<!--                <button class="layui-btn" lay-submit="" lay-filter="getcode">获取验证码</button>-->
+<!--            </div>-->
+
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+<!--        <label class="layui-form-label">输入验证码</label>-->
+<!--        <div class="layui-input-block">-->
+<!--            <input type="text" name="code" lay-verify="title" autocomplete="off" placeholder="请输入验证码"-->
+<!--                   class="layui-input">-->
+<!--        </div>-->
+    </div>
+
+
+
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn login_but" lay-submit lay-filter="register">确认注册</button>
+                <button class="layui-btn login_but" lay-submit lay-filter="quit">退出</button>
+            </div>
+        </div>
+    </form>
+
+
+
+
+    <script>
+        layui.use('form',function () {
+            var form = layui.form;
+
+            // 监听
+            form.on('submit(register)',function (data) {
+                console.log('点了按钮');
+
+
+                var flag = false;
+                // layer.msg(JSON.stringify(data.field));
+                console.log(data.field);
+                username = data.field.name;
+                password = data.field.password;
+                email = data.field.email;
+                URL = Ip+"request_user_register";
+                axios.get(URL, {
+                    params: {
+                        user_name: username,
+                        password: password,
+                        email: email,
+                    }
+                })
+                    .then(function(response){
+                        layer.msg(response.data);
+                    })
+                    .catch(function (error){
+                        layer.msg("error");
+                    });
+                setTimeout("quit()",2000);
+                return flag;
+            });
+
+            form.on('submit(quit)',function (data) {
+                quit();
+            })
+
+        });
+
+        function quit() {
+            var index = parent.layer.getFrameIndex(window.name);
+            console.log("层数:"+ index);
+            parent.layer.close(index);//关闭当前页
+        }
+    </script>
+
+</body>
+</html>

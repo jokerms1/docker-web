@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>DockerPaas</title>
+
+    <!-- 公共样式 开始 -->
+    <link rel="stylesheet" type="text/css" href="../../css/base.css">
+    <link rel="stylesheet" type="text/css" href="../../css/iconfont.css">
+    <script type="text/javascript" src="../../framework/jquery-1.11.3.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../layui/css/layui.css">
+    <script type="text/javascript" src="../../layui/layui.js"></script>
+    <!-- 滚动条插件 -->
+    <link rel="stylesheet" type="text/css" href="../../css/jquery.mCustomScrollbar.css">
+    <script src="../../framework/jquery-ui-1.10.4.min.js"></script>
+    <script src="../../framework/jquery.mousewheel.min.js"></script>
+    <script src="../../node_modules/axios/dist/axios.min.js"></script>
+    <script src="../../framework/jquery.mCustomScrollbar.min.js"></script>
+    <script src="../../framework/cframe.js"></script>
+
+    <script src="../Ip.js"></script>
+
+    <!-- 仅供所有子页面使用 -->
+    <!-- 公共样式 结束 -->
+
+    <style>
+        .layui-form-label{
+            width: 100px;
+        }
+        .layui-input-block{
+            margin-left: 130px;
+        }
+        .layui-form{
+            margin-right: 30%;
+        }
+        .top{
+            margin-top: 20px;
+        }
+        .shadow{
+            box-shadow: 5px 5px 5px #888888;
+        }
+        .cq-content{
+            overflow: auto !import;
+        }
+        .div1{
+            width: 80%;
+            margin-left: 7%;
+        }
+        .div_child1{
+            background-color: #BCEE68;
+        }
+
+    </style>
+
+</head>
+<body>
+<div  id="menu">
+   
+</div>
+<script type="text/javascript">
+	var user_name =  document.cookie.split(' ')[0];
+	var menu = document.getElementById('menu');
+	request_image_view(user_name);
+    function addEventListener(Ca){
+		Ca.addEventListener('mousemove',function(event){
+			Ca.style = "float:left;height: 150px;width:380px; margin-left: 40px;margin-top: 40px;border: 1px solid #00CED1; box-shadow: 2px 2px 2px 2px #00CED1";
+		});
+		Ca.addEventListener('mouseout',function(event){
+			Ca.style = "float:left;height: 150px;width:380px; margin-left: 40px;margin-top: 40px;border: 1px solid black;";
+		});
+	}
+		
+
+    //查询所有镜像
+    function request_image_view(user_name){
+    	URL = Ip + "request_image_view";
+    	axios.get(URL,{
+    		params:{
+                user_name:user_name
+            }
+    	})
+    	.then(function (response){
+            console.log("111111");
+            data = response.data;
+            console.log("镜像");
+            console.log(data);
+            if( data != null){
+            	service_init(data);
+            }
+        })
+        .catch(function (error){
+           	alert("获取失败");
+            console.log(error);
+        });
+    }
+
+
+    //服务初始化
+    function service_init(data){
+    	var i = 0 ; 
+    	for( i = 0 ; i < data.length ; i++){
+    		type = data[i].split(":")[0];
+    		console.log(type);
+    		console.log(data[i]);
+    		div_init(data[i],type);
+    	}
+    }
+
+    //div初始化
+    function div_init(image_name,type){
+    	var div = document.createElement('div');
+    	div.style = "float:left;height: 150px;width:380px; border: 1px solid black; margin-left: 40px;margin-top: 40px;background-color: white;opacity:0.85;";
+    	var h = document.createElement('h');
+    	var p = document.createElement('p');
+    	p.style = "font-size: 20px; margin-top: 20px;margin-left: 20px;";
+    	p.innerText = image_name;
+    	h.appendChild(p);
+    	var img;
+    	img = document.createElement('img');
+    	img.style = "display: inline-block; height: 60%;width: 200px; position: relative;top:15px;";
+    	if(type == "mysql"){
+    		
+    		img.src = "../../images/MySQL.jpg";
+    		div.addEventListener('click',function(event){
+    			apply_mysql();
+    		});
+    	}else if(type == "nginx"){
+    		img.src = "../../images/nginx.jpg";
+    		div.addEventListener('click',function(event){
+    			apply_nginx();
+    		});
+    	}else if(type == "java"){
+    		img.src = "../../images/Java.jpg";
+    		div.addEventListener('click',function(event){
+    			apply_java();
+    		});
+    	}else if(type == "ubuntu"){
+    		img.src = "../../images/ubuntu.jpg";
+    		div.addEventListener('click',function(event){
+    			apply_common_service(image_name);
+    		});
+    	}else{
+    		img.src = "../../images/docker.jpg";
+    		div.addEventListener('click',function(event){
+    			apply_common_service(image_name);
+    		});
+    	}
+    	var button = document.createElement('button');
+    	button.className = "layui-btn";
+    	button.style="display: inline-block; margin-top: 50px;margin-left: 50px;";
+    	button.innerText = "立即申请";
+    	div.appendChild(h);
+    	div.appendChild(img);
+    	div.appendChild(button);
+    	addEventListener(div);
+    	menu.appendChild(div);
+    }
+
+    //申请通用服务
+    function apply_common_service(image_name){
+        console.log("image_name:"+image_name);
+    	setLocalStorage(image_name);
+    	layui.use('layer', function() {
+            var layer = layui.layer;
+            //iframe层-父子操作
+            layer.open({
+                type: 2,
+                // scrollbar: ture,
+                // area: ['40%', '70%'],
+                fixed: false, //不固定
+                maxmin: true,
+                area: ['500px', '400px'],
+                content: "apply_service_other.html"
+            });
+        });
+    }
+    //申请mysql
+    function apply_mysql(){
+        setCookie("mysql");
+        layui.use('layer', function() {
+            var layer = layui.layer;
+            //iframe层-父子操作
+            layer.open({
+                type: 2,
+                // scrollbar: ture,
+                // area: ['40%', '70%'],
+                fixed: false, //不固定
+                maxmin: true,
+                area: ['500px', '400px'],
+                content: "apply_service_mysql.html"
+            });
+        });
+    }
+    //申请nginx
+    function apply_nginx(){
+      
+        layui.use('layer', function() {
+            var layer = layui.layer;
+            //iframe层-父子操作
+            layer.open({
+                type: 2,
+                // scrollbar: ture,
+                // area: ['40%', '70%'],
+                fixed: false, //不固定
+                maxmin: true,
+                area: ['500px', '400px'],
+                content: "apply_service_nginx.html"
+            });
+        });
+    }
+    //申请java
+    function apply_java(){
+        setCookie("java");
+        layui.use('layer', function() {
+            var layer = layui.layer;
+            //iframe层-父子操作
+            layer.open({
+                type: 2,
+                // scrollbar: ture,
+                // area: ['40%', '70%'],
+                fixed: false, //不固定
+                maxmin: true,
+                area: ['500px', '500px'],
+                content: "apply_service_java.html"
+            });
+        });
+    }
+    //设置cookie的值
+    function setCookie(image_name){
+
+        var username = document.cookie.split(' ')[0];
+        var power = document.cookie.split(' ')[1];
+        console.log("cookie:"+document.cookie);
+        console.log("images:"+image_name);
+    }
+    function setLocalStorage(image_name){
+    	localStorage.setItem("image_name",image_name);
+    }
+</script>
+
+</body>
+
+</html>
+<!-- box-shadow:  10px 10px 10px 10px #00FF7F; -->
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>DockerPaas</title>
+
+    <!-- 公共样式 开始 -->
+    <link rel="stylesheet" type="text/css" href="../../css/base.css">
+    <link rel="stylesheet" type="text/css" href="../../css/iconfont.css">
+    <script type="text/javascript" src="../../framework/jquery-1.11.3.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../layui/css/layui.css">
+    <script type="text/javascript" src="../../layui/layui.js"></script>
+    <!-- 滚动条插件 -->
+    <link rel="stylesheet" type="text/css" href="../../css/jquery.mCustomScrollbar.css">
+    <script src="../../framework/jquery-ui-1.10.4.min.js"></script>
+    <script src="../../framework/jquery.mousewheel.min.js"></script>
+    <script src="../../framework/jquery.mCustomScrollbar.min.js"></script>
+    <script src="../../framework/cframe.js"></script><!-- 仅供所有子页面使用 -->
+    <!-- 公共样式 结束 -->
+
+    <script type="text/javascript" src="../../node_modules/axios/dist/axios.min.js"></script>
+    <script type="text/javascript" src="../Ip.js"></script>
+
+
+    <style>
+        .layui-form-label{
+            width: 100px;
+        }
+        .layui-input-block{
+            margin-left: 130px;
+        }
+    </style>
+
+</head>
+
+<body>
+<div class="cBody">
+    <form id="addForm" class="layui-form" action="">
+        <div class="layui-form-item">
+            <label class="layui-form-label">服务名</label>
+            <div class="layui-input-inline shortInput">
+                <input type="text" name="service_name" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+<!--        <div class="layui-form-item">-->
+<!--            <label class="layui-form-label">服务数量</label>-->
+<!--            <div class="layui-input-inline shortInput">-->
+<!--                <input type="text" name="copy_num" autocomplete="off" class="layui-input">-->
+<!--            </div>-->
+<!--        </div>-->
+        <div class="layui-form-item">
+            <label class="layui-form-label">cpu个数[1-2]</label>
+            <div class="layui-input-inline shortInput">
+                <input type="text" name="cpu" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">内存大小MB[4-1024]</label>
+            <div class="layui-input-inline shortInput">
+                <input type="text" name="ram" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">mysql密码</label>
+            <div class="layui-input-inline shortInput">
+                <input type="text" name="mysql_pwd" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit lay-filter="submitBut">确认申请</button>
+                <button type="quit" class="layui-btn" onclick="quit()">退出</button>
+            </div>
+        </div>
+    </form>
+
+
+    <script>
+
+        function quit(){
+            var index = parent.layer.getFrameIndex(window.name);
+            console.log("层数:"+ index);
+            parent.layer.close(index);//关闭当前页
+        }
+
+        var user_name = document.cookie.split(" ")[0];
+        var image_name = "mysql:5.6";
+        console.log(user_name +" "+ image_name);       // cookie传值
+        var service_name;
+        var copy_num = 1;
+        var cpu;
+        var ram;
+        var mysql_pwd;
+
+        layui.use('form', function() {
+            var form = layui.form;
+            //监听提交
+            form.on('submit(submitBut)', function(data) {
+                service_name = data.field.service_name;
+                cpu = data.field.cpu;
+                ram = data.field.ram;
+                mysql_pwd = data.field.mysql_pwd;
+                apply_service_mysql(user_name,image_name,service_name,copy_num,cpu,ram,mysql_pwd);
+                return false;
+            });
+        });
+
+        function apply_service_mysql(user_name,image_name,service_name,copy_num,cpu,ram,mysql_pwd){
+            if(user_name==""||image_name==""||service_name==""||copy_num==""||cpu==""||ram==""||mysql_pwd=="") {
+                layer.msg("请先填写完成表单信息");
+            } else{
+                URL = Ip+"request_service_create";
+                console.log(URL);
+                axios.get(URL, {
+                    params: {
+                        user_name: user_name,
+                        image_name: image_name,
+                        service_name: service_name,
+                        copy_num: copy_num,
+                        cpu: cpu,
+                        ram: ram,
+                        mysql_pwd:mysql_pwd
+                    }
+                })
+                    .then(function(response){
+                        //console.log(response.data.msg);
+                        data = response.data.msg;
+                        if(data == "success"){
+                            layer.open({
+                                content: "服务请求成功",
+                                yes:function(index,layero){
+                                    layer.close(index); //关闭弹出框
+                                    quit();
+                                }
+                            })
+                        }else if(data == null){
+                            layer.open({
+                                content: "null",
+                                yes:function(index,layero){
+                                    layer.close(index); //关闭弹出框
+                                    quit();
+                                }
+                            })
+                        }else{
+                            layer.open({
+                                content: "error",
+                                yes:function(index,layero){
+                                    layer.close(index); //关闭弹出框
+                                    quit();
+                                }
+                            })
+                        }
+                    })
+                    .catch(function (error){
+                        layer.open({
+                            content: error,
+                            yes:function(index,layero){
+                                layer.close(index); //关闭弹出框
+                                quit();
+                            }
+                        })
+                    })
+
+            }
+
+        }
+    </script>
+
+</div>
+</body>
+
+</html>
